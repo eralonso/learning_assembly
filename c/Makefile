@@ -6,7 +6,7 @@
 #    By: eralonso <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/08/02 18:06:40 by eralonso          #+#    #+#              #
-#    Updated: 2024/08/02 18:16:36 by eralonso         ###   ########.fr        #
+#    Updated: 2024/08/05 13:03:24 by eralonso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,40 +33,55 @@ OBJS := $(addprefix $(OBJS_ROOT),$(addsuffix .o,$(FILES)))
 
 AS := nasm
 ASFLAGS := -f elf64
+AS_MAKEFILE_DEPENDCY_FLAG := -MD
 
 NAME := $(addprefix $(BIN_ROOT),$(NAME))
 TO_CREATE_DIRS := $(OBJS_ROOT) $(BIN_ROOT)
 
 vpath %.$(SUFFIX) $(SRCS_DIRS)
 
-all: $(TO_CREATE_DIRS) $(NAME)
+#FUNCTIONS
+
+define remove_dir_file
+ifneq ($1,)
+	$(RM) -r $1
+else
+	$(RM) $2
+endif
+endef
+
+#RULES
 
 $(OBJS_ROOT)%.o: %.$(SUFFIX)
-	$(AS) $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $(AS_MAKEFILE_DEPENDCY_FLAG) $(basename $*.$(DEP_SUFFIX)) $< -o $@
 
-$(OBJS_ROOT):
-	-mkdir -p $@
+all: $(TO_CREATE_DIRS) $(NAME)
 
-$(BIN_ROOT):
+$(TO_CREATE_DIRS):
 	-mkdir -p $@
 
 $(NAME): $(OBJS)
 	ld $(OBJS) -o $(NAME)
 
 clean:
-ifneq ($(OBJS_ROOT),)
-	$(RM) -r $(OBJS_ROOT)
-else
-	$(RM) $(OBJS)
-endif
+	$(eval $(call remove_dir_file,$(OBJS_ROOT),$(OBJS)))
+#ifneq ($(OBJS_ROOT),)
+#	$(RM) -r $(OBJS_ROOT)
+#else
+#	$(RM) $(OBJS)
+#endif
 
 fclean: clean
-ifneq ($(BIN_ROOT),)
-	$(RM) -r $(BIN_ROOT)
-else
-	$(RM) $(NAME)
-endif
+	$(eval $(call remove_dir_file, $(BIN_ROOT),$(NAME)))
+#ifneq ($(BIN_ROOT),)
+#	$(RM) -r $(BIN_ROOT)
+#else
+#	$(RM) $(NAME)
+#endif
 
 re: fclean all
+
+hola/test.d patata:
+	echo $@
 
 .PHONY: all clean fclean re

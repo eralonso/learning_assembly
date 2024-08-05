@@ -12,9 +12,9 @@
 
 section .text
 
-global _start ; _start == default entry symbol
+global sip ; _start == default entry symbol
 
-_start:
+sip:
 	mov rax, 60
 	mov rdi, 42
 	syscall
